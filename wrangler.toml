@@ -1,0 +1,17 @@
+name = "tourmanagementapp"
+main = "src/index.ts"
+compatibility_date = "2024-03-14"
+
+# Bind a D1 database
+[[d1_databases]]
+binding = "DB"
+database_name = "tourmanagmentappdb"
+database_id = "baa4bac7-c548-410b-9207-d2bf4281e172"
+
+# Bind an R2 Bucket
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "tourmanagmentappfiles"
+
+[observability]
+enabled = true

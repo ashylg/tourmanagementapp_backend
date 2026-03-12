@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS status_checks (
+    id TEXT PRIMARY KEY,
+    client_name TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
