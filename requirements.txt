@@ -1,5 +1,8 @@
-fastapi==0.110.0
-pydantic==2.6.4
-uvicorn==0.29.0
-sqlalchemy==2.0.29
-psycopg2-binary==2.9.9
+fastapi[standard]
+pydantic
+pydantic-settings
+bcrypt
+python-jose[cryptography]
+python-multipart
+sqlalchemy
+aiosqlite

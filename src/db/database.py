@@ -1,28 +1,20 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import declarative_base
 
-# Fetch database URL from environment, fallback to an in-memory SQLite DB for local dev if not set
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./tourmanagement.db")
+# Default to SQLite for easy local dev, but fully structured like Postgres
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./tourmanagement.db")
 
-# Render's PostgreSQL URLs start with postgres:// but SQLAlchemy requires postgresql://
-if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-# SQLite requires connect_args={"check_same_thread": False}, Postgres doesn't
-connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args=connect_args
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(DATABASE_URL, echo=False)
+AsyncSessionLocal = async_sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, class_=AsyncSession)
 
 Base = declarative_base()
 
-# Dependency for FastAPI routers
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_async_session() -> AsyncSession:
+    async with AsyncSessionLocal() as session:
+        yield session
+
+async def init_db():
+    async with engine.begin() as conn:
+        # Create all tables if they don't exist
+        await conn.run_sync(Base.metadata.create_all)
